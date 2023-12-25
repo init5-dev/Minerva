@@ -1,4 +1,5 @@
 import express, { Router } from 'express'
+import cors from "cors"
 import createChat from "./api/v1/chats/create.js"
 import getChat from "./api/v1/messages/get.js"
 import sendMessage from "./api/v1/messages/send.js"
@@ -21,6 +22,7 @@ router.post('/api/v1/messages/send', sendMessage)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cors())
 app.use(router)
 
 

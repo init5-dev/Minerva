@@ -13,8 +13,11 @@ const sendMessage = async (req, res) => {
   const host = process.env.EXPRESS_HOST
   const port = process.env.EXPRESS_PORT
 
+  // Get chat history and generationConfig from database
+
   let response = await axios.get(`http://${host}:${port}/api/v1/chats/${chatId}`)
   const data = await response.data
+
   const {_id, title, createdAt, modifiedAt, ...chat} = data
 
   const history = chat._history
