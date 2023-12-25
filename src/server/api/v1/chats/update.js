@@ -1,20 +1,21 @@
-import { BSON } from "mongodb"
+import { BSON, ObjectId } from "mongodb"
 import { database } from "../../../database/connect.js"
 
 const updateChat = async (req, res) => {
-  const chatId = new BSON.ObjectId(req.body.id)
-  const values = req.body.values
+  const chatId = new BSON.ObjectId(req.body.chatId)
+  const content = req.body.content
 
   const chat = await database.collection('chats').findOne({ _id: chatId })
-  console.dir(chat)
+  console.log(chatId)
+  console.dir(content)
 
-  const updatedChat = await database.collection('chats').updateOne({ _id: chatId }, {
-    $set: values
-  })
+  const response = await database.collection('chats').updateOne({ _id: chatId }, {
+     $set: {
+      ...content
+     }
+   })
 
-  console.log(values)
-
-  res.status(201).send(updatedChat)
+  res.status(201).send(response)
 }
 
 export default updateChat

@@ -2,6 +2,7 @@ import { config } from "dotenv"
 import axios from "axios"
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import { database } from "../../../database/connect.js"
+import { BSON } from "mongodb"
 
 config()
 
@@ -14,29 +15,36 @@ const sendMessage = async (req, res) => {
 
   let response = await axios.get(`http://${host}:${port}/api/v1/chats/${chatId}`)
   const data = await response.data
+  const {_id, title, createdAt, modifiedAt, ...chat} = data
 
+  const history = chat._history
+  const generationConfig = chat.params.generationConfig
+  
   // Create new chat using Gemini
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-  const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
-  const chatParams = data.value.params
-  const chat = model.startChat(chatParams)
+   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+   const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+
+   const gChat = model.startChat({
+     history,
+     generationConfig
+   }) 
 
   // Send message and await for response
 
-  const result = await chat.sendMessage(message)
+  const result = await gChat.sendMessage(message)
   response = await result.response
-  const text = response.text()
 
-  // Update chat in database
-  // response = await axios.put(`http://${host}:${port}/api/v1/chats/`, {
-  //   title: req.body.title,
-  //   value: ,
-  //   createdAt: new Date(),
-  //   modifiedAt: new Date()
-  // })
+  //Update chat in database
 
-  res.status(201).json(text)
+  response = await database.collection('chats').updateOne({ _id: new BSON.ObjectId(chatId) }, {
+    $set: {
+      _history: gChat._history,
+      modifiedAt: new Date()
+    }
+  })
+
+ res.status(201).send(response)
 }
 
 export default sendMessage

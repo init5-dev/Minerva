@@ -8,15 +8,16 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
 
 const createChat = async (req, res) => {
   const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+  const gChat = model.startChat({
+    history: [],
+    generationConfig: {
+      maxOutputTokens: 500
+    }
+  })
 
   const chat = {
     title: req.body.title,
-    value: model.startChat({
-      history: [],
-      generationConfig: {
-        maxOutputTokens: 500
-      }
-    }),
+    ...gChat,
     createdAt: new Date(),
     modifiedAt: new Date()
   }
