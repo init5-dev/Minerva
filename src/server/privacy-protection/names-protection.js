@@ -2,38 +2,17 @@ import nlp from "compromise/three"
 import gender from "gender-detection"
 import { femaleNames, maleNames } from './data/names.js'
 import ES from "./spanish.js"
+import { encryptValue } from "./encryption.js"
 
 const text = 'Hola, me llamo Nelson Ochagavía y mi esposa es Elisa Vega Martinez. Mi padre se llama Adolfo y mi madre Maritza'
 
-const encryptValue = (value, array) => {
-  let index
-
-  do {
-    index = Math.floor(Math.random() * array.length)
-  } while (value === array[index])
-
-  return {
-    value,
-    eValue: array[index]
-  }
-}
-
-const decryptValue = (eValue, dict) => {
-  const results = dict.filter(pair => pair.eValue === eValue)
-  if (results.length) {
-    return results[0].value
-  } else {
-    return null
-  }
-}
-
-const encryptNames = (text) => {
+const encodeNames = (text) => {
   const doc = nlp(text)
   const names = doc.people().normalize().text().split(' ')
 
   let dict = names.map(name => {
 
-    if (ES.isNoun(name)) {
+    if (ES.isNoun(name)) { // This is for avoiding some mistakes because compromise doesn't understand Spanish. For example: it recognizes "y" as a people.
       const g = gender.detect(name)
       const fakeList = g === 'male' ? maleNames : femaleNames
 
@@ -52,11 +31,7 @@ const encryptNames = (text) => {
   return { eText, dict }
 }
 
-const decryptNames = (eText, dict) => {
-  const doc = nlp(eText)
-  const eNames = doc.people().normalize().text().split(' ')
-  const names = eNames.map(eName => decryptValue(eName, dict))
-
+const decodeNames = (eText, dict) => {
   let text = eText
 
   dict.forEach(pair => {
@@ -66,9 +41,11 @@ const decryptNames = (eText, dict) => {
   return text
 }
 
-const {eText, dict} = encryptNames(text)
-const names = decryptNames(eText, dict)
+const {eText, dict} = encodeNames(text)
+const decodedText = decodeNames(eText, dict)
 
-console.log(eText)
-console.log(dict)
-console.log(names)
+console.log('Text with names encoded:', eText)
+console.log('Encoding dictionary:', dict)
+console.log('Decoded encoded text:', decodedText)
+
+export {encodeNames, decodeNames}
