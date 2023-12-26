@@ -1,6 +1,7 @@
 import { AccountCircle, LightbulbCircle } from "@mui/icons-material";
 import { Box, CircularProgress, useTheme } from "@mui/material";
 import Markdown from "react-markdown";
+import rehypeHighlight from "rehype-highlight";
 
 const Avatar = ({ role }) => {
   return <Box marginTop={3}>
@@ -30,7 +31,7 @@ const ChatMsg = ({ role, content }) => {
     }}>
       <Avatar role={role} />
       <Box sx={styles}>
-        <Markdown>{content}</Markdown>
+        <Markdown rehypePlugins={[rehypeHighlight]}>{content}</Markdown>
       </Box>
     </Box>
   );
