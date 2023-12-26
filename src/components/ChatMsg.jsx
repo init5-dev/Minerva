@@ -1,40 +1,37 @@
 import { AccountCircle, LightbulbCircle } from "@mui/icons-material";
-import { Box, Typography, useTheme } from "@mui/material";
-import React from 'react';
+import { Box, CircularProgress, useTheme } from "@mui/material";
+import Markdown from "react-markdown";
 
-const ChatMsg = ({ role, content, loading }) => {
+const Avatar = ({ role }) => {
+  return <Box marginTop={3}>
+    {role === 'user' ? <AccountCircle /> : role === 'model' ? <LightbulbCircle /> : <CircularProgress size={24} />}
+  </Box>
+}
+
+const ChatMsg = ({ role, content }) => {
 
   const theme = useTheme()
 
-  const formatContent = () => {
-    return content.split('\n').map((p, key) => <p key={key}>{p.split()}</p>)
-  }
-
   const styles = {
-    display: 'flex',
     columnGap: 2,
     backgroundColor: role === 'user' && theme.palette.grey[900],
     borderRadius: role === 'user' && 2,
-    paddingLeft: 4,
-    paddingRight: 4,
-    paddingTop: 2,
-    paddingBottom: 2,
-    marginTop: 2,
-    marginBottom: 2
+    paddingLeft: 2,
+    paddingRight: 2,
+    paddingTop: 1,
+    paddingBottom: 1,
+    marginBottom: 1
   }
 
   return (
     <Box sx={{
       display: 'flex',
-      columnGap: 2,
-      alignItems: 'center'
+      columnGap: 2
     }}>
-      {role === 'user' ? <AccountCircle /> : <LightbulbCircle />}
-      <Typography sx={styles}>
-        <Box>
-          {loading ? '.......': formatContent()}
-        </Box>
-      </Typography>
+      <Avatar role={role} />
+      <Box sx={styles}>
+        <Markdown>{content}</Markdown>
+      </Box>
     </Box>
   );
 };

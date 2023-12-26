@@ -1,4 +1,4 @@
-import { Typography, styled } from "@mui/material";
+import { Box, Typography, styled } from "@mui/material";
 import ChatMsg from "./ChatMsg";
 import { useEffect } from "react";
 
@@ -27,16 +27,16 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
 );
 
 const Chat = ({ history, loading }) => {
-  
+
   useEffect(() => {
     const mainEl = document.getElementById('main-div')
     mainEl.scrollTo(0, mainEl.scrollHeight)
-  }, history)
+  }, [history])
 
   return (
     <Main id='main-div' open={open}>
       {history && history.map((message, key) =>
-        <ChatMsg key={key} role={message.role} content={message.content} loading={loading} />
+        <ChatMsg key={key} role={message.role} content={message.content} />
       )}
     </Main>
   );

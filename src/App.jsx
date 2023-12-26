@@ -3,14 +3,13 @@ import CssBaseline from '@mui/material/CssBaseline';
 import ApplicationBar from "./components/ApplicationBar"
 import { useEffect, useState } from "react";
 import Sidebar from "./components/Sidebar";
-import { Box } from "@mui/material";
 import Chat from "./components/Chat";
 import axios from "axios";
 import Prompt from "./components/Prompt";
 
 const host = import.meta.env.VITE_EXPRESS_HOST
 const port = import.meta.env.VITE_EXPRESS_PORT
-const chatId = "6589d1a742b36bc4362ea7dd"
+const chatId = "658a3646b22d89c21851fc78"
 
 const darkTheme = createTheme({
   palette: {
@@ -20,6 +19,8 @@ const darkTheme = createTheme({
 
 function App() {
   const [open, setOpen] = useState(false);
+  const [chats, setChats] = useState([])
+  const [chat, setChat] = useState('')
   const [lastPrompt, setLastPrompt] = useState('')
   const [history, setHistory] = useState([
     {
@@ -34,6 +35,15 @@ function App() {
   const [loading, setLoading] = useState(false)
 
   const loadChats = () => {
+    axios.get(`http://${host}:${port}/api/v1/chats/`)
+      .then(response => {
+        const data = response.data
+        setChats(data)
+        setChat(data[0])
+      })
+  }
+
+  const loadHistory = () => {
     setLoading(true)
     axios.get(`http://${host}:${port}/api/v1/chats/${chatId}`)
       .then(response => {
@@ -51,24 +61,32 @@ function App() {
       axios.post(`http://${host}:${port}/api/v1/messages/send`, {
         chatId: chatId,
         message: lastPrompt
-      }).then(response => {
-        loadChats()
+      }).then(() => {
+        loadHistory()
       })
     }
   }
 
+  const newChat = () => {
+    axios.post(`http://${host}:${port}/api/v1/chats/`, {
+      title: ""
+    })
+  }
+
   useEffect(() => {
-    const chatId = '6589d1a742b36bc4362ea7dd'
     loadChats()
+    loadHistory()
   }, [])
 
   useEffect(() => {
-    const historyUpdated = [...history]
-    historyUpdated.push({ role: 'user', content: lastPrompt }, { role: 'model', content: '' })
+    console.log(chat._id)
+  }, [chat])
+
+  useEffect(() => {
+    let historyUpdated = [...history]
+    historyUpdated.push({ role: 'user', content: lastPrompt }, { role: '', content: '' })
     setHistory([...historyUpdated])
 
-    console.log(JSON.stringify(history))
-    
     prompt()
   }, [lastPrompt])
 
@@ -76,7 +94,7 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <ApplicationBar drawerState={{ open, setOpen }} />
-      <Sidebar drawerState={{ open, setOpen }} />
+      <Sidebar handler={{ open, setOpen, setChat, newChat }} chats={chats} />
       <Chat history={history} loading={loading} />
       <Prompt handler={{ lastPrompt, setLastPrompt }} />
     </ThemeProvider>

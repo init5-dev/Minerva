@@ -1,5 +1,5 @@
-import { Drawer, IconButton, Divider, List, ListItem, ListItemText, ListItemButton, ListItemIcon } from "@mui/material";
-import { Inbox as InboxIcon, Mail as MailIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "@mui/icons-material";
+import { Drawer, IconButton, Divider, List, ListItem, ListItemText, ListItemButton, ListItemIcon, Typography, Stack } from "@mui/material";
+import { Inbox as InboxIcon, Mail as MailIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Add } from "@mui/icons-material";
 import { styled, useTheme } from "@mui/material";
 import { useState } from "react";
 
@@ -14,7 +14,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const Sidebar = ({ drawerState }) => {
+const Sidebar = ({ handler, chats }) => {
   const theme = useTheme();
 
   return (
@@ -27,42 +27,38 @@ const Sidebar = ({ drawerState }) => {
           boxSizing: 'border-box',
         },
       }}
-      variant="persistent"
       anchor="left"
-      open={drawerState.open}
+      open={handler.open}
+      variant="temporary"
+      onClose={() => handler.setOpen(false)}
+      ModalProps={{
+        keepMounted: true, // Better open performance on mobile.
+      }}
     >
-      <DrawerHeader>
-        <IconButton onClick={() => {drawerState.setOpen(false)}}>
-          {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+      <Divider />
+      <Stack direction="row" gap={2} alignItems='center'>
+        <Typography variant="h6" sx={{ padding: 2 }}>
+          Chats recientes
+        </Typography>
+        <IconButton onClick={() => {
+          handler.newChat()
+        }}>
+          <Add />
         </IconButton>
-      </DrawerHeader>
+      </Stack>
       <Divider />
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
+        {chats && chats.map((chat) => (
+          <ListItem key={chat._id} disablePadding>
+            <ListItemButton onClick={() => { handler.setChat(chat) }}>
+              <ListItemText primary={chat.title} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
     </Drawer>
+
+
   );
 };
 
