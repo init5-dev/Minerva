@@ -1,5 +1,4 @@
 import { config } from "dotenv"
-import { exit } from "process"
 import { MongoClient } from "mongodb"
 
 config()
@@ -20,7 +19,7 @@ const connect = async () => {
     console.log('Done!')
   } catch (error) {
     console.log('\nERROR:', error.message)
-    exit(1)
+    return null
   }
 
   return database

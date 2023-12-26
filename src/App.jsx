@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar";
 import Chat from "./components/Chat";
 import axios from "axios";
 import Prompt from "./components/Prompt";
+import AlertDialog from "./components/Alert";
 
 const host = import.meta.env.VITE_EXPRESS_HOST
 const port = import.meta.env.VITE_EXPRESS_PORT
@@ -17,7 +18,15 @@ const darkTheme = createTheme({
 });
 
 function App() {
-  const [open, setOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(false)
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alert, setAlert] = useState({
+    title: '',
+    message: ''
+  });
+
   const [chats, setChats] = useState([])
   const [chat, setChat] = useState(null)
   const [lastPrompt, setLastPrompt] = useState('')
@@ -31,9 +40,19 @@ function App() {
       content: 'Hola! En qué puedo ayudarte'
     }
   ])
-  const [loading, setLoading] = useState(false)
+
+  const handleError = (title, message) => {
+    setLoading(false)
+    setHistory([])
+    setAlertOpen(true)
+    setAlert({
+      title,
+      message
+    })
+  }
 
   const loadChats = (chatId = null) => {
+    setLoading(true)
     axios.get(`http://${host}:${port}/api/v1/chats/`)
       .then(response => {
         if (response.data) {
@@ -41,6 +60,11 @@ function App() {
           setChats([...data])
           setChat(chatId ? data.find(chat => chat._id === chatId) : data[0])
         }
+        setLoading(false)
+      })
+      .catch(error => {
+        console.log('ERROR ON LOAD CHATS: ', error.message)
+        handleError('Error', '¡Lo siento! Hubo un problema al cargar los chats')
       })
   }
 
@@ -55,7 +79,6 @@ function App() {
 
           if (history && history.length) {
             history.splice(0, 1) // Removes instruction entry
-            console.log('HISTORY:\n', JSON.stringify(history, null, 2))
 
             setHistory(history.map(message => ({
               role: message.role,
@@ -65,16 +88,26 @@ function App() {
           }
         }
       })
+      .catch(error => {
+        if (!alertOpen) {
+          console.log('ERROR ON LOAD MESSAGES: ', error.message)
+          handleError('Error', '¡Lo siento! Hubo un problema al cargar los mensajes')
+        }
+      })
   }
 
   const prompt = () => {
     if (lastPrompt.length && chat) {
-      console.log('CURRENT CHAT:', chat)
       axios.post(`http://${host}:${port}/api/v1/messages/send`, {
         chatId: chat._id,
         message: lastPrompt
       }).then(() => {
-        loadHistory()
+        return loadHistory()
+      }).catch(error => {
+        if (!alertOpen) {
+          console.log('ERROR ON LOAD MESSAGES: ', error.message)
+          handleError('Error', '¡Lo siento! Hubo un problema al cargar los mensajes')
+        }
       })
     }
   }
@@ -86,9 +119,14 @@ function App() {
 
       if (response.data) {
         const chatId = response.data.chatId
-        loadChats(chatId)
+        return loadChats(chatId)
       }
 
+    }).catch(error => {
+      if (!alertOpen) {
+        console.log('ERROR ON LOAD CHATS: ', error.message)
+        handleError('Error', '¡Lo siento! Hubo un problema al cargar los chats')
+      }
     })
   }
 
@@ -119,10 +157,11 @@ function App() {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <ApplicationBar drawerState={{ open, setOpen }} />
-      <Sidebar handler={{ open, setOpen, setChat, newChat, chat }} chats={chats} />
-      <Chat history={history} loading={loading} />
-      <Prompt handler={{ lastPrompt, setLastPrompt }} />
+      <ApplicationBar drawerState={{ open: sidebarOpen, setOpen: setSidebarOpen }} />
+      <Sidebar handler={{ open: sidebarOpen, setOpen: setSidebarOpen, setChat, newChat, chat }} chats={chats} />
+      <Chat history={history} />
+      <Prompt handler={{ lastPrompt, setLastPrompt, loading }} />
+      {alertOpen && <AlertDialog title={alert.title} message={alert.message} open={alertOpen} setOpen={setAlertOpen} />}
     </ThemeProvider>
   )
 }

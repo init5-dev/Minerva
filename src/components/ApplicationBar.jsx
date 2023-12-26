@@ -151,6 +151,9 @@ export default function ApplicationBar({ drawerState }) {
             color="inherit"
             aria-label="open drawer"
             onClick={() => drawerState.setOpen(!drawerState.open)}
+            sx={{
+              mr: 1
+            }}
           >
             <MenuIcon />
           </IconButton>

@@ -1,22 +1,9 @@
-import { Drawer, IconButton, Divider, List, ListItem, ListItemText, ListItemButton, ListItemIcon, Typography, Stack } from "@mui/material";
-import { Inbox as InboxIcon, Mail as MailIcon, ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Add } from "@mui/icons-material";
-import { styled, useTheme } from "@mui/material";
-import { useState } from "react";
+import { Drawer, IconButton, Divider, List, ListItem, ListItemText, ListItemButton, Typography, Stack } from "@mui/material";
+import { Add } from "@mui/icons-material";
 
 const drawerWidth = 240;
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
 const Sidebar = ({ handler, chats }) => {
-  const theme = useTheme();
-
   return (
     <Drawer
       sx={{

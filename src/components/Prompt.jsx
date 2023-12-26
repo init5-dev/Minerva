@@ -8,22 +8,22 @@ const Prompt = ({ handler }) => {
   const { setLastPrompt } = handler
 
   const handleChange = (e) => {
-    if (e.target.value.trim().length) {
-      setReady(true)
-      setPrompt(e.target.value)
-    } else {
+    const value = e.target.value
+
+    setReady(value.trim().length && !handler.loading)
+    setPrompt(value)
+  }
+
+  const send = () => {
+    if (!handler.loading) {
+      setLastPrompt(prompt.trim())
+      setPrompt('')
       setReady(false)
     }
   }
 
-  const send = () => {
-    setLastPrompt(prompt.trim())
-    setPrompt('')
-    setReady(false)
-  }
-
   return (
-    <Stack direction='row' gap={2} width='100vw'>
+    <Stack direction='row' gap={2} width='100vw' p={1}>
       <TextField
         sx={{ width: '95vw' }}
         value={prompt}

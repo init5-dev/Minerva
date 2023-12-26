@@ -1,4 +1,4 @@
-import { Box, Typography, styled } from "@mui/material";
+import { styled } from "@mui/material";
 import ChatMsg from "./ChatMsg";
 import { useEffect } from "react";
 
@@ -6,7 +6,6 @@ const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
-    flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
@@ -20,13 +19,12 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       }),
       marginLeft: 0,
     }),
-    height: '80vh',
     overflowX: 'hidden',
     overflowY: 'auto'
   }),
 );
 
-const Chat = ({ history, loading }) => {
+const Chat = ({ history }) => {
 
   useEffect(() => {
     const mainEl = document.getElementById('main-div')
@@ -34,9 +32,14 @@ const Chat = ({ history, loading }) => {
   }, [history])
 
   return (
-    <Main id='main-div' open={open}>
-      {history && history.map((message, key) =>
-        <ChatMsg key={key} role={message.role} content={message.content} />
+    <Main id='main-div' open={open} sx={{
+        height: {
+          xs: '75.5vh',
+          md: '77.5vh'
+        }
+    }}>
+      {history && history.map((message, i) =>
+        <ChatMsg key={i} role={message.role} content={message.content} />
       )}
     </Main>
   );
