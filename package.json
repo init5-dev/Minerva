@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently vite \"nodemon src/server/index.js\"",
+    "dev": "nodemon src/server/index.js & vite",
     "build": "vite build",
     "server": "nodemon src/server/index.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",

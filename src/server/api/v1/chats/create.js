@@ -32,9 +32,12 @@ const createChat = async (req, res) => {
   }
 
   const chats = database.collection('chats')
-  await chats.insertOne(chat)
+  const result = await chats.insertOne(chat)
 
-  res.status(201).send('Chat created successfully.')
+  res.status(201).json({
+    message: 'Chat created successfully.',
+    chatId: result.insertedId
+  })
 }
 
 export default createChat

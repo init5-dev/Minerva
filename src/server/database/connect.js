@@ -19,7 +19,7 @@ const connect = async () => {
 
     console.log('Done!')
   } catch (error) {
-    console.log('ERROR:', error.message)
+    console.log('\nERROR:', error.message)
     exit(1)
   }
 

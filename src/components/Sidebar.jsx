@@ -49,7 +49,7 @@ const Sidebar = ({ handler, chats }) => {
       <Divider />
       <List>
         {chats && chats.map((chat) => (
-          <ListItem key={chat._id} disablePadding>
+          chat.title && <ListItem key={chat._id} disablePadding selected={handler.chat._id === chat._id}>
             <ListItemButton onClick={() => { handler.setChat(chat) }}>
               <ListItemText primary={chat.title} />
             </ListItemButton>

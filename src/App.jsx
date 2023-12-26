@@ -9,7 +9,6 @@ import Prompt from "./components/Prompt";
 
 const host = import.meta.env.VITE_EXPRESS_HOST
 const port = import.meta.env.VITE_EXPRESS_PORT
-const chatId = "658a3646b22d89c21851fc78"
 
 const darkTheme = createTheme({
   palette: {
@@ -20,7 +19,7 @@ const darkTheme = createTheme({
 function App() {
   const [open, setOpen] = useState(false);
   const [chats, setChats] = useState([])
-  const [chat, setChat] = useState('')
+  const [chat, setChat] = useState(null)
   const [lastPrompt, setLastPrompt] = useState('')
   const [history, setHistory] = useState([
     {
@@ -34,32 +33,45 @@ function App() {
   ])
   const [loading, setLoading] = useState(false)
 
-  const loadChats = () => {
+  const loadChats = (chatId = null) => {
     axios.get(`http://${host}:${port}/api/v1/chats/`)
       .then(response => {
-        const data = response.data
-        setChats(data)
-        setChat(data[0])
+        if (response.data) {
+          const data = response.data
+          setChats([...data])
+          setChat(chatId ? data.find(chat => chat._id === chatId) : data[0])
+        }
       })
   }
 
   const loadHistory = () => {
     setLoading(true)
-    axios.get(`http://${host}:${port}/api/v1/chats/${chatId}`)
+    axios.get(`http://${host}:${port}/api/v1/chats/${chat._id}`)
       .then(response => {
-        const data = response.data
-        setHistory(data._history.map(message => ({
-          role: message.role,
-          content: message.parts[0].text
-        })))
-        setLoading(false)
+
+        if (response.data) {
+          const data = response.data
+          const history = [...data._history]
+
+          if (history && history.length) {
+            history.splice(0, 1) // Removes instruction entry
+            console.log('HISTORY:\n', JSON.stringify(history, null, 2))
+
+            setHistory(history.map(message => ({
+              role: message.role,
+              content: message.parts[0].text
+            })))
+            setLoading(false)
+          }
+        }
       })
   }
 
   const prompt = () => {
-    if (lastPrompt.length) {
+    if (lastPrompt.length && chat) {
+      console.log('CURRENT CHAT:', chat)
       axios.post(`http://${host}:${port}/api/v1/messages/send`, {
-        chatId: chatId,
+        chatId: chat._id,
         message: lastPrompt
       }).then(() => {
         loadHistory()
@@ -69,17 +81,31 @@ function App() {
 
   const newChat = () => {
     axios.post(`http://${host}:${port}/api/v1/chats/`, {
-      title: ""
+      title: "Nuevo chat" + new Date
+    }).then(response => {
+
+      if (response.data) {
+        const chatId = response.data.chatId
+        loadChats(chatId)
+      }
+
     })
   }
 
   useEffect(() => {
     loadChats()
-    loadHistory()
   }, [])
 
   useEffect(() => {
-    console.log(chat._id)
+    if (chats.length) {
+      loadHistory()
+    }
+  }, [chats])
+
+  useEffect(() => {
+    if (chats.length) {
+      loadHistory()
+    }
   }, [chat])
 
   useEffect(() => {
@@ -94,7 +120,7 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <ApplicationBar drawerState={{ open, setOpen }} />
-      <Sidebar handler={{ open, setOpen, setChat, newChat }} chats={chats} />
+      <Sidebar handler={{ open, setOpen, setChat, newChat, chat }} chats={chats} />
       <Chat history={history} loading={loading} />
       <Prompt handler={{ lastPrompt, setLastPrompt }} />
     </ThemeProvider>
