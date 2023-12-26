@@ -27,9 +27,13 @@ const Sidebar = ({ handler, chats }) => {
         <Typography variant="h6" sx={{ padding: 2 }}>
           Chats recientes
         </Typography>
-        <IconButton onClick={() => {
+        <IconButton 
+        onClick={() => {
           handler.newChat()
-        }}>
+          handler.setOpen(false)
+        }}
+        disabled={handler.loading}
+        >
           <Add />
         </IconButton>
       </Stack>
@@ -37,13 +41,19 @@ const Sidebar = ({ handler, chats }) => {
       <List>
         {chats && chats.map((chat) => (
           chat.title && <ListItem key={chat._id} disablePadding selected={handler.chat._id === chat._id}>
-            <ListItemButton onClick={() => { handler.setChat(chat) }}>
+            <ListItemButton
+              onClick={() => {
+                handler.setChat(chat)
+                handler.setOpen(false)
+              }}
+              disabled={handler.loading}
+            >
               <ListItemText primary={chat.title} />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-    </Drawer>
+    </Drawer >
 
 
   );

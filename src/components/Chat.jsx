@@ -1,8 +1,15 @@
-import { styled } from "@mui/material";
+import { Box, CircularProgress, styled } from "@mui/material";
 import ChatMsg from "./ChatMsg";
 import { useEffect } from "react";
 
 const drawerWidth = 240;
+
+const genericStyles = {
+  height: {
+    xs: '75.5vh',
+    md: '77.5vh'
+  }
+}
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
@@ -24,24 +31,27 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   }),
 );
 
-const Chat = ({ history }) => {
+const Chat = ({ history, loading }) => {
 
   useEffect(() => {
-    const mainEl = document.getElementById('main-div')
-    mainEl.scrollTo(0, mainEl.scrollHeight)
+    if (!loading) {
+      const mainEl = document.getElementById('main-div')
+      mainEl.scrollTo(0, mainEl.scrollHeight)
+    }
   }, [history])
 
   return (
-    <Main id='main-div' open={open} sx={{
-        height: {
-          xs: '75.5vh',
-          md: '77.5vh'
-        }
-    }}>
-      {history && history.map((message, i) =>
-        <ChatMsg key={i} role={message.role} content={message.content} />
-      )}
-    </Main>
+    loading
+
+      ? <Box display='flex' alignItems='center' justifyContent='center' sx={genericStyles}>
+          <CircularProgress />
+        </Box>
+
+      : <Main id='main-div' open={open} sx={genericStyles}>
+        {history && history.map((message, i) =>
+          <ChatMsg key={i} role={message.role} content={message.content} />
+        )}
+      </Main>
   );
 };
 

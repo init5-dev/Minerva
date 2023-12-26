@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import ApplicationBar from "./components/ApplicationBar"
@@ -98,12 +99,18 @@ function App() {
 
   const prompt = () => {
     if (lastPrompt.length && chat) {
+      setLoading(true)
       axios.post(`http://${host}:${port}/api/v1/messages/send`, {
         chatId: chat._id,
         message: lastPrompt
-      }).then(() => {
+      })
+      .then(() => {
+        return loadChats()
+      })
+      .then(() => {
         return loadHistory()
-      }).catch(error => {
+      })
+      .catch(error => {
         if (!alertOpen) {
           console.log('ERROR ON LOAD MESSAGES: ', error.message)
           handleError('Error', '¡Lo siento! Hubo un problema al cargar los mensajes')
@@ -113,12 +120,14 @@ function App() {
   }
 
   const newChat = () => {
+    setLoading(true)
     axios.post(`http://${host}:${port}/api/v1/chats/`, {
-      title: "Nuevo chat" + new Date
+      title: ''
     }).then(response => {
 
       if (response.data) {
         const chatId = response.data.chatId
+        setLoading(true)
         return loadChats(chatId)
       }
 
@@ -158,8 +167,8 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <ApplicationBar drawerState={{ open: sidebarOpen, setOpen: setSidebarOpen }} />
-      <Sidebar handler={{ open: sidebarOpen, setOpen: setSidebarOpen, setChat, newChat, chat }} chats={chats} />
-      <Chat history={history} />
+      <Sidebar handler={{ open: sidebarOpen, setOpen: setSidebarOpen, setChat, newChat, chat, loading }} chats={chats} />
+      <Chat history={history} loading={loading} />
       <Prompt handler={{ lastPrompt, setLastPrompt, loading }} />
       {alertOpen && <AlertDialog title={alert.title} message={alert.message} open={alertOpen} setOpen={setAlertOpen} />}
     </ThemeProvider>
