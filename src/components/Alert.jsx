@@ -7,10 +7,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 export default function AlertDialog({ title, message, open, setOpen }) {
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
     setOpen(false);
   };

@@ -6,7 +6,7 @@ config()
 const client = new MongoClient(process.env.MONGODB_URI)
 
 const connect = async () => {
-  console.clear()
+  //console.clear()
   process.stdout.write('Connecting to database... ')
 
   let database
