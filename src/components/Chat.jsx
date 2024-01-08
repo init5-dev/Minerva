@@ -35,8 +35,8 @@ const Chat = ({ history, loading }) => {
 
   useEffect(() => {
     if (!loading) {
-      const mainEl = document.getElementById('main-div')
-      mainEl.scrollTo(0, mainEl.scrollHeight)
+      const lastMsg = document.getElementById('last')
+      lastMsg.scrollIntoView()
     }
   }, [history])
 
@@ -49,7 +49,9 @@ const Chat = ({ history, loading }) => {
 
       : <Main id='main-div' open={open} sx={genericStyles}>
         {history && history.map((message, i) =>
-          <ChatMsg key={i} role={message.role} content={message.content} />
+        <Box key={i} id={i === history.length - 1 ? 'last': 'xxx'}>
+          <ChatMsg role={message.role} content={message.content} />
+        </Box>   
         )}
       </Main>
   );

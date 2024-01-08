@@ -26,7 +26,7 @@ router.put('/api/v1/chats/', updateChat)
 
 router.post('/api/v1/messages/send', sendMessage)
 
-router.get('/api/v1/users/login', getUserByCredentials)
+router.post('/api/v1/users/login', getUserByCredentials)
 router.get('/api/v1/users/:id', getUserById)
 router.post('/api/v1/users', createUser)
 

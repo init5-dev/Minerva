@@ -1,6 +1,5 @@
 import { database } from "../../../database/connect.js"
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
 
 const createUser = async (req, res) => {
   const { email, password } = req.body

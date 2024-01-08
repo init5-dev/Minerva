@@ -7,8 +7,8 @@ const getUserById = async (req, res) => {
   const _id = new BSON.ObjectId(req.params.id)
 
   try {
-    const user = await database.collection('users').findOne({_id})
-    
+    const user = await database.collection('users').findOne({ _id })
+
     if (user) {
       res.status(200).json(user)
     } else {
@@ -20,12 +20,14 @@ const getUserById = async (req, res) => {
 }
 
 const getUserByCredentials = async (req, res) => {
-  const {email, password} = req.body
+  const { email, password } = req.body
 
   if (!email || !password) {
-    res.send('Incomplete credentials')
+    res.status(401).json({
+      message: 'Incomplete credentials',
+    })
   } else {
-    let user = await database.collection('users').findOne({email})
+    let user = await database.collection('users').findOne({ email })
 
     if (user) {
       console.log(password, typeof password)
@@ -33,15 +35,16 @@ const getUserByCredentials = async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, user.password)
       if (passwordMatch) {
 
-        user =  await database.collection('users').findOneAndUpdate({_id: user._id}, {
+        user = await database.collection('users').findOneAndUpdate({ _id: user._id }, {
           $set: {
             loggedAt: new Date()
-          }    
+          }
         })
 
-        const secret = import.meta.env.JWT_SECRET
-        const token = jwt.sign({userId: user._id}, secret, {
-          expiresIn: '1m'
+        const secret = process.env.JWT_SECRET
+        console.log('SECRET:', secret)
+        const token = jwt.sign({ userId: user._id }, secret, {
+          expiresIn: '1h'
         })
 
         res.status(200).json({
@@ -49,12 +52,16 @@ const getUserByCredentials = async (req, res) => {
           user
         })
       } else {
-        res.status(401).send('Invalid credentials')
+        res.status(401).json({
+          message: 'Invalid credentials',
+        })
       }
     } else {
-      res.status(401).send('Invalid credentials')
+      res.status(401).json({
+        message: 'Invalid credentials',
+      })
     }
   }
 }
 
-export {getUserById, getUserByCredentials}
+export { getUserById, getUserByCredentials }
