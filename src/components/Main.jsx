@@ -7,7 +7,6 @@ import Chat from "./Chat";
 import axios from "axios";
 import Prompt from "./Prompt";
 import AlertDialog from "./Alert";
-import ConfDialog from "./ConfDialog";
 
 const host = import.meta.env.VITE_EXPRESS_HOST
 const port = import.meta.env.VITE_EXPRESS_PORT
@@ -176,7 +175,6 @@ function Main() {
       <Chat history={history} loading={loadingMessages} />
       <Prompt handler={{ lastPrompt, setLastPrompt, loading: loadingMessages }} />
       {alertOpen && <AlertDialog title={alert.title} message={alert.message} open={alertOpen} setOpen={setAlertOpen} />}
-      <ConfDialog />
     </ThemeProvider>
   )
 }
